@@ -7,6 +7,7 @@ import {
   TextInput,
   Image,
   ScrollView,
+  FlatList,
   ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
@@ -39,7 +40,7 @@ export default function HomeScreen() {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <StatusBar />
       <View style={styles.container}>
         <View style={styles.headerContainer}>
@@ -62,9 +63,12 @@ export default function HomeScreen() {
             <Text>Select Filter</Text>
           </TouchableOpacity>
         </View>
-        <ScrollView>
-          {products.map((product, i) => (
-            <View style={styles.productPart} key={i}>
+        <FlatList
+          data={products}
+          numColumns={2}
+          contentContainerStyle={{ alignItems: "center" }}
+          renderItem={({ item: product }) => (
+            <View style={styles.productAllPart}>
               <TouchableOpacity
                 onPress={() =>
                   navigation.navigate("DetailsScreen", { product: product })
@@ -79,8 +83,8 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </TouchableOpacity>
             </View>
-          ))}
-        </ScrollView>
+          )}
+        />
       </View>
       <View style={styles.navbar}>
         <TouchableOpacity>
@@ -164,17 +168,32 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     backgroundColor: "#D9D9D9",
   },
-  productPart: {
-    borderRadius: 10,
-    flexDirection: "column",
+  productAllPart: {
     padding: 6,
     marginBottom: 5,
+    width: "50%",
+    height: "42%",
+    marginLeft: 5,
+  },
+  productPart: {
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 5,
+    width: "92%",
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   image: {
     width: "100%",
     height: "100%",
     maxHeight: 150,
-    maxWidth: 150,
+    maxWidth: "100%",
     marginBottom: 16,
     resizeMode: "cover",
   },
@@ -198,6 +217,7 @@ const styles = StyleSheet.create({
     paddingLeft: 14,
     paddingRight: 14,
     borderRadius: 6,
+    width: "100%",
   },
   addToCartText: {
     color: "#fff",

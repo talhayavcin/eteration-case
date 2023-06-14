@@ -18,7 +18,7 @@ export default function DetailsScreen({ route, navigation }) {
   const { product } = route.params;
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <TouchableOpacity onPress={navigation.goBack}>
@@ -27,7 +27,7 @@ export default function DetailsScreen({ route, navigation }) {
           <Text style={styles.headerText}>{product.name}</Text>
         </View>
         <View style={styles.mainPart}>
-          <View style={styles.productPart}>
+          <View>
             <Image style={styles.image} source={{ uri: product.image }} />
             <Text style={styles.productText}>{product.name}</Text>
             <Text style={styles.productDescription}>{product.description}</Text>
@@ -42,20 +42,20 @@ export default function DetailsScreen({ route, navigation }) {
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.navbar}>
-          <TouchableOpacity>
-            <Ionicons name="ios-home-outline" size={40} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="ios-basket-outline" size={40} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="ios-star-outline" size={40} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="person-outline" size={40} color="black" />
-          </TouchableOpacity>
-        </View>
+      </View>
+      <View style={styles.navbar}>
+        <TouchableOpacity>
+          <Ionicons name="ios-home-outline" size={40} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons name="ios-basket-outline" size={40} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons name="ios-star-outline" size={40} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons name="person-outline" size={40} color="black" />
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -68,10 +68,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   headerContainer: {
-    flex: 1,
     backgroundColor: "#2A59FE",
-    paddingTop: 6,
-    paddingBottom: 6,
+    paddingTop: 4,
+    paddingBottom: 4,
     paddingLeft: 12,
     paddingRight: 12,
     flexDirection: "row",
@@ -81,11 +80,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: 700,
     fontSize: 24,
-    marginLeft: 60,
-  },
-  productPart: {},
-  pricePart: {
-    flexDirection: "column",
+    marginLeft: 75,
   },
   productPrice: {
     flexDirection: "row",
@@ -93,15 +88,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   mainPart: {
-    flex: 12,
     width: "90%",
     alignSelf: "center",
   },
   image: {
     width: "100%",
     height: "100%",
-    maxHeight: 150,
-    maxWidth: 300,
+    maxHeight: 200,
+    maxWidth: "100%",
     marginBottom: 12,
     marginTop: 12,
     resizeMode: "cover",
@@ -117,10 +111,19 @@ const styles = StyleSheet.create({
     fontWeight: 400,
   },
   navbar: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     borderTopWidth: 0.25,
     padding: 10,
+    backgroundColor: "#fff",
+  },
+  addToCartButton: {
+    backgroundColor: "#2A59FE",
+  },
+  pricePart: {
+    flexDirection: "column",
+  },
+  addToCartButtonText: {
+    color: "#fff",
   },
 });

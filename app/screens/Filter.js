@@ -53,7 +53,7 @@ export default function Filter() {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <TouchableOpacity onPress={navigation.goBack}>
