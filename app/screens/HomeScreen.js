@@ -13,8 +13,9 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,6 +35,8 @@ export default function HomeScreen({ navigation }) {
   if (isLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
+
+  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -62,7 +65,12 @@ export default function HomeScreen({ navigation }) {
         <ScrollView>
           {products.map((product, i) => (
             <View style={styles.productPart} key={i}>
-              <TouchableOpacity style={styles.productPart}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("DetailsScreen", { product: product })
+                }
+                style={styles.productPart}
+              >
                 <Image style={styles.image} source={{ uri: product.image }} />
                 <Text style={styles.priceText}>{product.price} tl</Text>
                 <Text style={styles.productText}>{product.name}</Text>
