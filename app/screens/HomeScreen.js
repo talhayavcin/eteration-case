@@ -12,13 +12,16 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
+import { CartContext } from "../context/context";
 
 export default function HomeScreen() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { cart, addToCart, removeFromCart, emptyCart } =
+    useContext(CartContext);
 
   useEffect(() => {
     axios
@@ -78,7 +81,10 @@ export default function HomeScreen() {
                 <Image style={styles.image} source={{ uri: product.image }} />
                 <Text style={styles.priceText}>{product.price} tl</Text>
                 <Text style={styles.productText}>{product.name}</Text>
-                <TouchableOpacity style={styles.addToCart}>
+                <TouchableOpacity
+                  onPress={() => addToCart(product)}
+                  style={styles.addToCart}
+                >
                   <Text style={styles.addToCartText}>Add to Cart</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
@@ -90,7 +96,7 @@ export default function HomeScreen() {
         <TouchableOpacity>
           <Ionicons name="ios-home-outline" size={40} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
           <Ionicons name="ios-basket-outline" size={40} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>

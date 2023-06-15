@@ -1,32 +1,40 @@
-import { StatusBar } from "expo-status-bar";
 import HomeScreen from "./screens/HomeScreen";
 import Filter from "./screens/Filter";
+import CartScreen from "./screens/CartScreen";
+import DetailsScreen from "./screens/DetailsScreen";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import DetailsScreen from "./screens/DetailsScreen";
+import { CartProvider } from "./context/context";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          options={{ headerShown: false }}
-          name="HomeScreen"
-          component={HomeScreen}
-        />
-        <Stack.Screen
-          options={{ headerShown: false, presentation: "modal" }}
-          name="Filter"
-          component={Filter}
-        />
-        <Stack.Screen
-          options={{ headerShown: false }}
-          name="DetailsScreen"
-          component={DetailsScreen}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <CartProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="HomeScreen"
+            component={HomeScreen}
+          />
+          <Stack.Screen
+            options={{ headerShown: false, presentation: "modal" }}
+            name="Filter"
+            component={Filter}
+          />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="DetailsScreen"
+            component={DetailsScreen}
+          />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="CartScreen"
+            component={CartScreen}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </CartProvider>
   );
 }
