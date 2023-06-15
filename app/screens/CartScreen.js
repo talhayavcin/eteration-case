@@ -10,6 +10,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function CartScreen() {
   const { cart, removeFromCart } = useContext(CartContext);
@@ -17,24 +18,60 @@ export default function CartScreen() {
   const navigation = useNavigation();
   const [totalPrice, setTotalPrice] = useState(0);
 
-  const updateQuantity = (index, increment) => {
+  const updateQuantity = async (index, increment) => {
     const newQuantities = [...quantities];
     newQuantities[index] += increment;
 
     if (newQuantities[index] < 1) {
       removeFromCart(cart[index].id);
       newQuantities.splice(index, 1);
+    } else {
+      try {
+        await AsyncStorage.setItem("quantities", JSON.stringify(newQuantities));
+      } catch (error) {
+        console.error(error);
+      }
     }
+
     setQuantities(newQuantities);
   };
 
   useEffect(() => {
+    (async () => {
+      try {
+        const value = await AsyncStorage.getItem("quantities");
+        if (value !== null) {
+          const parsedQuantities = JSON.parse(value);
+          if (parsedQuantities.length !== cart.length) {
+            const diff = cart.length - parsedQuantities.length;
+            for (let i = 0; i < diff; i++) {
+              parsedQuantities.push(1);
+            }
+            await AsyncStorage.setItem(
+              "quantities",
+              JSON.stringify(parsedQuantities)
+            );
+          }
+          setQuantities(parsedQuantities);
+        } else {
+          const newQuantities = Array(cart.length).fill(1);
+          await AsyncStorage.setItem(
+            "quantities",
+            JSON.stringify(newQuantities)
+          );
+          setQuantities(newQuantities);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+
     let total = 0;
     for (let i = 0; i < cart.length; i++) {
       total += cart[i].price * quantities[i];
     }
     setTotalPrice(total);
-  }, [quantities]);
+  }, [cart, quantities]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -43,34 +80,37 @@ export default function CartScreen() {
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>E-Market</Text>
         </View>
-        <View style={styles.mainPart}>
-          {cart.map((product, index) => (
-            <View key={index} style={styles.productPart}>
-              <View>
-                <Text style={styles.productName}>{product.name}</Text>
-                <Text style={styles.productPrice}>{product.price}</Text>
+        <View style={styles.contentPart}>
+          <View style={styles.mainPart}>
+            {cart.map((product, index) => (
+              <View key={index} style={styles.productPart}>
+                <View>
+                  <Text style={styles.productName}>{product.name}</Text>
+                  <Text style={styles.productPrice}>{product.price}</Text>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <TouchableOpacity
+                    style={styles.plusButton}
+                    onPress={() => updateQuantity(index, -1)}
+                  >
+                    <Text>-</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.productNumber}>{quantities[index]}</Text>
+                  <TouchableOpacity
+                    style={styles.minusButton}
+                    onPress={() => updateQuantity(index, 1)}
+                  >
+                    <Text>+</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <TouchableOpacity
-                  style={styles.plusButton}
-                  onPress={() => updateQuantity(index, -1)}
-                >
-                  <Text>-</Text>
-                </TouchableOpacity>
-                <Text style={styles.productNumber}>{quantities[index]}</Text>
-                <TouchableOpacity
-                  style={styles.minusButton}
-                  onPress={() => updateQuantity(index, 1)}
-                >
-                  <Text>+</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
+            ))}
+          </View>
+
           <View style={styles.bottom}>
             <View style={styles.pricePart}>
               <Text style={styles.totalText}>Total:</Text>
-              <Text style={styles.totalPrice}>{totalPrice}</Text>
+              <Text style={styles.totalPrice}>{`${totalPrice} TL`}</Text>
             </View>
             <TouchableOpacity style={styles.completeButton}>
               <Text style={styles.pricePartText}>Complete</Text>
@@ -153,22 +193,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginBottom: 14,
   },
-  mainPart: {
+  contentPart: {
     flex: 1,
+    justifyContent: "space-between",
+  },
+  mainPart: {
     marginTop: 24,
   },
   bottom: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
+    width: "90%",
+    alignSelf: "center",
+    marginBottom: 16,
   },
   pricePart: {
     flexDirection: "column",
   },
   completeButton: {
     alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 8,
+    paddingHorizontal: 28,
+    paddingVertical: 10,
     backgroundColor: "#2A59FE",
     borderRadius: 4,
   },
