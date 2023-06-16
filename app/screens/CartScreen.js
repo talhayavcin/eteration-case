@@ -13,28 +13,32 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function CartScreen() {
-  const { cart, removeFromCart } = useContext(CartContext);
+  const { cart, removeFromCart, updateQuantityInCart } =
+    useContext(CartContext);
   const [quantities, setQuantities] = useState(Array(cart.length).fill(1));
   const navigation = useNavigation();
   const [totalPrice, setTotalPrice] = useState(0);
 
-  const updateQuantity = async (index, increment) => {
-    const newQuantities = [...quantities];
-    newQuantities[index] += increment;
-
-    if (newQuantities[index] < 1) {
+  const updateQuantity = (index, increment) => {
+    if (quantities[index] + increment < 1) {
       removeFromCart(cart[index].id);
-      newQuantities.splice(index, 1);
     } else {
+      updateQuantityInCart(cart[index].id, increment);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
       try {
-        await AsyncStorage.setItem("quantities", JSON.stringify(newQuantities));
+        const storedQuantities = await AsyncStorage.getItem("quantities");
+        if (storedQuantities !== null) {
+          setQuantities(JSON.parse(storedQuantities));
+        }
       } catch (error) {
         console.error(error);
       }
-    }
-
-    setQuantities(newQuantities);
-  };
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {

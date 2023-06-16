@@ -18,6 +18,8 @@ export default function Filter() {
   const [checkedItems, setCheckedItems] = useState([]);
   const [selectedOption, setSelectedOption] = useState("1");
   const [models, setModels] = useState([]);
+  const [searchBrand, setSearchBrand] = useState("");
+  const [searchModel, setSearchModel] = useState("");
 
   const options = [
     { label: "Old to new", value: "1" },
@@ -85,22 +87,28 @@ export default function Filter() {
                 style={[styles.searchInput]}
                 placeholderTextColor="#495466"
                 placeholder={"Search"}
+                onChangeText={(text) => setSearchBrand(text)}
+                value={searchBrand}
               />
             </View>
             <ScrollView style={styles.scrollView}>
-              {brands.map((brand, i) => (
-                <View style={styles.checkboxContainer} key={i}>
-                  <Checkbox.Android
-                    status={
-                      checkedItems.includes(brand) ? "checked" : "unchecked"
-                    }
-                    onPress={() => handleCheck(brand)}
-                    color="#2A59FE"
-                    uncheckedColor="#2A59FE"
-                  />
-                  <Text style={styles.textStyle}>{brand}</Text>
-                </View>
-              ))}
+              {brands
+                .filter((brand) =>
+                  brand.toLowerCase().includes(searchBrand.toLowerCase())
+                )
+                .map((brand, i) => (
+                  <View style={styles.checkboxContainer} key={i}>
+                    <Checkbox.Android
+                      status={
+                        checkedItems.includes(brand) ? "checked" : "unchecked"
+                      }
+                      onPress={() => handleCheck(brand)}
+                      color="#2A59FE"
+                      uncheckedColor="#2A59FE"
+                    />
+                    <Text style={styles.textStyle}>{brand}</Text>
+                  </View>
+                ))}
             </ScrollView>
           </View>
           <View style={styles.separator} />
@@ -112,22 +120,28 @@ export default function Filter() {
                 style={[styles.searchInput]}
                 placeholderTextColor="#495466"
                 placeholder={"Search"}
+                onChangeText={(text) => setSearchModel(text)}
+                value={searchModel}
               />
             </View>
             <ScrollView style={styles.scrollView}>
-              {models.map((model, i) => (
-                <View style={styles.checkboxContainer} key={i}>
-                  <Checkbox.Android
-                    status={
-                      checkedItems.includes(model) ? "checked" : "unchecked"
-                    }
-                    onPress={() => handleCheck(model)}
-                    color="#2A59FE"
-                    uncheckedColor="#2A59FE"
-                  />
-                  <Text style={styles.textStyle}>{model}</Text>
-                </View>
-              ))}
+              {models
+                .filter((model) =>
+                  model.toLowerCase().includes(searchModel.toLowerCase())
+                )
+                .map((model, i) => (
+                  <View style={styles.checkboxContainer} key={i}>
+                    <Checkbox.Android
+                      status={
+                        checkedItems.includes(model) ? "checked" : "unchecked"
+                      }
+                      onPress={() => handleCheck(model)}
+                      color="#2A59FE"
+                      uncheckedColor="#2A59FE"
+                    />
+                    <Text style={styles.textStyle}>{model}</Text>
+                  </View>
+                ))}
             </ScrollView>
           </View>
         </ScrollView>

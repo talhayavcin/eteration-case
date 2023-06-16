@@ -21,9 +21,14 @@ import { CartContext } from "../context/context";
 export default function HomeScreen({ route }) {
   const { selectedOption, checkedItems } = route.params || {};
   const [products, setProducts] = useState([]);
+  const [displayedProducts, setDisplayedProducts] = useState([]);
+  const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const { cart, addToCart, removeFromCart, emptyCart } =
     useContext(CartContext);
+  const [page, setPage] = useState(1);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     // Fetch the products
@@ -31,6 +36,12 @@ export default function HomeScreen({ route }) {
       .get("https://5fc9346b2af77700165ae514.mockapi.io/products")
       .then((response) => {
         let filteredProducts = response.data;
+
+        if (searchText) {
+          filteredProducts = filteredProducts.filter((product) =>
+            product.name.toLowerCase().includes(searchText.toLowerCase())
+          );
+        }
 
         if (checkedItems && checkedItems.length > 0) {
           filteredProducts = filteredProducts.filter(
@@ -61,19 +72,22 @@ export default function HomeScreen({ route }) {
             break;
         }
         setProducts(filteredProducts);
+        setDisplayedProducts(filteredProducts.slice(0, 12 * page));
         setIsLoading(false);
       })
       .catch((error) => {
         console.error(error);
         setIsLoading(false);
       });
-  }, [selectedOption, checkedItems]);
+  }, [selectedOption, checkedItems, searchText, page]);
+
+  const handleLoadMore = () => {
+    setPage(page + 1);
+  };
 
   if (isLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
-
-  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -88,6 +102,8 @@ export default function HomeScreen({ route }) {
             style={[styles.searchInput]}
             placeholderTextColor="#495466"
             placeholder={"Search"}
+            onChangeText={(text) => setSearchText(text)}
+            value={searchText}
           />
         </View>
         <View style={styles.filterPart}>
@@ -100,12 +116,15 @@ export default function HomeScreen({ route }) {
           </TouchableOpacity>
         </View>
         <FlatList
-          data={products}
+          data={displayedProducts}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
           numColumns={2}
           contentContainerStyle={{
-            alignSelf: "center",
             alignItems: "center",
             width: "90%",
+            marginTop: 22,
+            marginLeft: 6,
           }}
           renderItem={({ item: product }) => (
             <View style={styles.productAllPart}>
@@ -191,7 +210,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 8,
     width: "90%",
     alignSelf: "center",
   },
@@ -211,7 +230,7 @@ const styles = StyleSheet.create({
     width: "47%",
     marginLeft: 16,
     backgroundColor: "#fff",
-    height: Dimensions.get("window").height / 2.3,
+    height: Dimensions.get("window").height / 2.2,
     borderRadius: 5,
     padding: 10,
     marginBottom: 16,

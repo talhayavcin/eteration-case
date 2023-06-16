@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    maxHeight: 200,
+    maxHeight: 225,
     maxWidth: "100%",
     marginBottom: 12,
     marginTop: 12,
@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderTopWidth: 0.25,
     padding: 10,
+    backgroundColor: " #fff",
   },
   bottom: {
     flexDirection: "row",
