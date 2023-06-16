@@ -27,19 +27,15 @@ export default function Filter() {
   ];
 
   useEffect(() => {
-    axios
-      .get("https://5fc9346b2af77700165ae514.mockapi.io/products")
-      .then((response) => {
-        const uniqueBrands = Array.from(
-          new Set(response.data.map((item) => item.brand))
-        );
-        const uniqueModels = Array.from(
-          new Set(response.data.map((item) => item.model))
-        );
-        setBrands(uniqueBrands);
-        setModels(uniqueModels);
-      })
-      .catch((error) => console.error(error));
+    const products = require("../product.json");
+    const uniqueBrands = Array.from(
+      new Set(products.map((item) => item.brand))
+    );
+    const uniqueModels = Array.from(
+      new Set(products.map((item) => item.model))
+    );
+    setBrands(uniqueBrands);
+    setModels(uniqueModels);
   }, []);
 
   const handleCheck = (value) => {
@@ -136,8 +132,16 @@ export default function Filter() {
           </View>
         </ScrollView>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.buttonText}>Primary</Text>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("HomeScreen", {
+                selectedOption: selectedOption,
+                checkedItems: checkedItems,
+              });
+            }}
+            style={styles.filterButton}
+          >
+            <Text style={styles.buttonText}>Apply Filter</Text>
           </TouchableOpacity>
         </View>
       </View>

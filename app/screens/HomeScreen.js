@@ -9,6 +9,7 @@ import {
   ScrollView,
   FlatList,
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,24 +18,56 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { CartContext } from "../context/context";
 
-export default function HomeScreen() {
+export default function HomeScreen({ route }) {
+  const { selectedOption, checkedItems } = route.params || {};
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { cart, addToCart, removeFromCart, emptyCart } =
     useContext(CartContext);
 
   useEffect(() => {
+    // Fetch the products
     axios
       .get("https://5fc9346b2af77700165ae514.mockapi.io/products")
       .then((response) => {
-        setProducts(response.data);
+        let filteredProducts = response.data;
+
+        if (checkedItems && checkedItems.length > 0) {
+          filteredProducts = filteredProducts.filter(
+            (product) =>
+              checkedItems.includes(product.brand) ||
+              checkedItems.includes(product.model)
+          );
+        }
+
+        switch (selectedOption) {
+          case "1":
+            filteredProducts.sort(
+              (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+            );
+            break;
+          case "2":
+            filteredProducts.sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            break;
+          case "3":
+            filteredProducts.sort((a, b) => b.price - a.price);
+            break;
+          case "4":
+            filteredProducts.sort((a, b) => a.price - b.price);
+            break;
+          default:
+            break;
+        }
+        setProducts(filteredProducts);
         setIsLoading(false);
       })
       .catch((error) => {
         console.error(error);
         setIsLoading(false);
       });
-  }, []);
+  }, [selectedOption, checkedItems]);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -69,7 +102,11 @@ export default function HomeScreen() {
         <FlatList
           data={products}
           numColumns={2}
-          contentContainerStyle={{ alignItems: "center" }}
+          contentContainerStyle={{
+            alignSelf: "center",
+            alignItems: "center",
+            width: "90%",
+          }}
           renderItem={({ item: product }) => (
             <View style={styles.productAllPart}>
               <TouchableOpacity
@@ -131,12 +168,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.25,
     padding: 10,
   },
-  mainContainer: {
-    flexDirection: "column",
-    justifyContent: "space-evenly",
-    width: "95%",
-    alignItems: "center",
-  },
   searchContainer: {
     flexDirection: "row",
     alignSelf: "center",
@@ -147,6 +178,7 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     backgroundColor: "#f5f5f5",
     width: "90%",
+    alignItems: "center",
   },
   searchInput: {
     flex: 1,
@@ -175,18 +207,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#D9D9D9",
   },
   productAllPart: {
-    padding: 6,
-    marginBottom: 5,
-    width: "50%",
-    height: "42%",
-    marginLeft: 5,
-  },
-  productPart: {
+    marginBottom: 10,
+    width: "47%",
+    marginLeft: 16,
+    backgroundColor: "#fff",
+    height: Dimensions.get("window").height / 2.3,
     borderRadius: 5,
     padding: 10,
-    marginBottom: 5,
-    width: "92%",
-    backgroundColor: "#fff",
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -195,6 +223,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
+
   image: {
     width: "100%",
     height: "100%",

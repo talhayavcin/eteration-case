@@ -4,18 +4,19 @@ import {
   Text,
   TouchableOpacity,
   View,
-  TextInput,
   Image,
   ScrollView,
-  ActivityIndicator,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { CartContext } from "../context/context";
 
-export default function DetailsScreen({ route, navigation }) {
+export default function DetailsScreen({ route }) {
+  const { cart, addToCart, removeFromCart, emptyCart } =
+    useContext(CartContext);
   const { product } = route.params;
+  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -26,28 +27,37 @@ export default function DetailsScreen({ route, navigation }) {
           </TouchableOpacity>
           <Text style={styles.headerText}>{product.name}</Text>
         </View>
-        <View style={styles.mainPart}>
-          <View>
-            <Image style={styles.image} source={{ uri: product.image }} />
-            <Text style={styles.productText}>{product.name}</Text>
-            <Text style={styles.productDescription}>{product.description}</Text>
-          </View>
-          <View style={styles.productPrice}>
-            <View style={styles.pricePart}>
-              <Text>Price: </Text>
-              <Text>{product.price}</Text>
+        <View style={styles.contentPart}>
+          <View style={styles.mainPart}>
+            <View style={styles.productPart}>
+              <Image style={styles.image} source={{ uri: product.image }} />
+              <Text style={styles.productText}>{product.name}</Text>
+              <ScrollView>
+                <Text style={styles.productDescription}>
+                  {product.description}
+                </Text>
+              </ScrollView>
             </View>
-            <TouchableOpacity style={styles.addToCartButton}>
-              <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+          </View>
+          <View style={styles.bottom}>
+            <View style={styles.pricePart}>
+              <Text style={styles.totalText}>Price:</Text>
+              <Text style={styles.totalPrice}>{`${product.price} TL`}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => addToCart(product)}
+              style={styles.completeButton}
+            >
+              <Text style={styles.pricePartText}>Add to Cart</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
       <View style={styles.navbar}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
           <Ionicons name="ios-home-outline" size={40} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
           <Ionicons name="ios-basket-outline" size={40} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
@@ -82,14 +92,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginLeft: 75,
   },
-  productPrice: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
   mainPart: {
     width: "90%",
     alignSelf: "center",
+    height: "75%",
+  },
+  contentPart: {
+    flex: 1,
+    justifyContent: "space-between",
   },
   image: {
     width: "100%",
@@ -110,20 +120,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 400,
   },
+  productPart: {
+    marginTop: 4,
+  },
   navbar: {
     flexDirection: "row",
     justifyContent: "space-between",
     borderTopWidth: 0.25,
     padding: 10,
-    backgroundColor: "#fff",
   },
-  addToCartButton: {
-    backgroundColor: "#2A59FE",
+  bottom: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "90%",
+    alignSelf: "center",
+    marginBottom: 16,
   },
   pricePart: {
     flexDirection: "column",
   },
-  addToCartButtonText: {
+  completeButton: {
+    alignItems: "center",
+    paddingHorizontal: 28,
+    paddingVertical: 10,
+    backgroundColor: "#2A59FE",
+    borderRadius: 4,
+  },
+  pricePartText: {
     color: "#fff",
+    fontSize: 18,
+    fontWeight: 700,
+  },
+  totalText: {
+    color: "#2A59FE",
+    fontWeight: 400,
+    fontSize: 18,
+  },
+  totalPrice: {
+    fontWeight: 600,
+    fontSize: 18,
   },
 });

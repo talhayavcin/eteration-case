@@ -106,7 +106,6 @@ export default function CartScreen() {
               </View>
             ))}
           </View>
-
           <View style={styles.bottom}>
             <View style={styles.pricePart}>
               <Text style={styles.totalText}>Total:</Text>
