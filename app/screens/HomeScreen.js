@@ -101,6 +101,13 @@ export default function HomeScreen({ route }) {
     AsyncStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
+  const loadFavorites = async () => {
+    const storedFavorites = await AsyncStorage.getItem("favorites");
+    if (storedFavorites) {
+      setFavorites(JSON.parse(storedFavorites));
+    }
+  };
+
   const toggleFavorite = (product) => {
     setFavorites((currentFavorites) => {
       const isFavorite = currentFavorites.some(
@@ -159,32 +166,41 @@ export default function HomeScreen({ route }) {
             marginTop: 22,
             marginLeft: 6,
           }}
-          renderItem={({ item: product }) => (
-            <View style={styles.productAllPart}>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("DetailsScreen", { product: product })
-                }
-                style={styles.productPart}
-              >
+          renderItem={({ item: product }) => {
+            const isFavorite = favorites.some(
+              (favorite) => favorite.id === product.id
+            );
+            return (
+              <View style={styles.productAllPart}>
                 <TouchableOpacity
-                  style={styles.starButton}
-                  onPress={() => toggleFavorite(product)}
+                  onPress={() =>
+                    navigation.navigate("DetailsScreen", { product: product })
+                  }
+                  style={styles.productPart}
                 >
-                  <Ionicons name="ios-star-sharp" size={24} color="#D9D9D9" />
+                  <TouchableOpacity
+                    style={styles.starButton}
+                    onPress={() => toggleFavorite(product)}
+                  >
+                    <Ionicons
+                      name="ios-star-sharp"
+                      size={24}
+                      color={isFavorite ? "#FFB800" : "#D9D9D9"}
+                    />
+                  </TouchableOpacity>
+                  <Image style={styles.image} source={{ uri: product.image }} />
+                  <Text style={styles.priceText}>{product.price} tl</Text>
+                  <Text style={styles.productText}>{product.name}</Text>
+                  <TouchableOpacity
+                    onPress={() => addToCart(product)}
+                    style={styles.addToCart}
+                  >
+                    <Text style={styles.addToCartText}>Add to Cart</Text>
+                  </TouchableOpacity>
                 </TouchableOpacity>
-                <Image style={styles.image} source={{ uri: product.image }} />
-                <Text style={styles.priceText}>{product.price} tl</Text>
-                <Text style={styles.productText}>{product.name}</Text>
-                <TouchableOpacity
-                  onPress={() => addToCart(product)}
-                  style={styles.addToCart}
-                >
-                  <Text style={styles.addToCartText}>Add to Cart</Text>
-                </TouchableOpacity>
-              </TouchableOpacity>
-            </View>
-          )}
+              </View>
+            );
+          }}
         />
       </View>
       <View style={styles.navbar}>
@@ -199,7 +215,9 @@ export default function HomeScreen({ route }) {
             </View>
           )}
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("FavoritesScreen")}
+        >
           <Ionicons name="ios-star-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>

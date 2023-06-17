@@ -2,6 +2,7 @@ import HomeScreen from "./screens/HomeScreen";
 import Filter from "./screens/Filter";
 import CartScreen from "./screens/CartScreen";
 import DetailsScreen from "./screens/DetailsScreen";
+import FavoritesScreen from "./screens/FavoritesScreen";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { CartProvider } from "./context/context";
@@ -32,6 +33,11 @@ export default function App() {
             options={{ headerShown: false }}
             name="CartScreen"
             component={CartScreen}
+          />
+          <Stack.Screen
+            options={{ headerShown: false }}
+            name="FavoritesScreen"
+            component={FavoritesScreen}
           />
         </Stack.Navigator>
       </NavigationContainer>

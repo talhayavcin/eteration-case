@@ -113,7 +113,9 @@ export default function CartScreen() {
         <TouchableOpacity>
           <Ionicons name="ios-basket-outline" size={36} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("FavoritesScreen")}
+        >
           <Ionicons name="ios-star-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>

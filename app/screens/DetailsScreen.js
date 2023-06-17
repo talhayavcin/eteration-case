@@ -20,6 +20,10 @@ export default function DetailsScreen({ route }) {
 
   const truncate = (input) =>
     input.length > 15 ? `${input.substring(0, 15)}...` : input;
+  const totalQuantity = cart.reduce(
+    (sum, product) => sum + (product.quantity || 1),
+    0
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -62,6 +66,11 @@ export default function DetailsScreen({ route }) {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
           <Ionicons name="ios-basket-outline" size={36} color="black" />
+          {cart.length > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{totalQuantity}</Text>
+            </View>
+          )}
         </TouchableOpacity>
         <TouchableOpacity>
           <Ionicons name="ios-star-outline" size={36} color="black" />
@@ -164,5 +173,21 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontWeight: 600,
     fontSize: 18,
+  },
+  badge: {
+    position: "absolute",
+    right: -8,
+    top: -3,
+    backgroundColor: "red",
+    borderRadius: 16,
+    width: 22,
+    height: 22,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  badgeText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
