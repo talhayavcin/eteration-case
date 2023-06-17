@@ -6,18 +6,20 @@ import {
   View,
   TextInput,
   Image,
-  ScrollView,
   FlatList,
   ActivityIndicator,
   Dimensions,
+  StatusBar,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { CartContext } from "../context/context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+
+const width = Dimensions.get("window").width;
 
 export default function HomeScreen({ route }) {
   const { selectedOption, checkedItems } = route.params || {};
@@ -42,7 +44,6 @@ export default function HomeScreen({ route }) {
       .get("https://5fc9346b2af77700165ae514.mockapi.io/products")
       .then((response) => {
         let filteredProducts = response.data;
-
         if (searchText) {
           filteredProducts = filteredProducts.filter((product) =>
             product.name.toLowerCase().includes(searchText.toLowerCase())
@@ -88,7 +89,9 @@ export default function HomeScreen({ route }) {
   }, [selectedOption, checkedItems, searchText, page]);
 
   const handleLoadMore = () => {
-    setPage(page + 1);
+    if (!isLoading) {
+      setPage(page + 1);
+    }
   };
 
   useEffect(() => {
@@ -130,12 +133,13 @@ export default function HomeScreen({ route }) {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      <StatusBar />
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <StatusBar barStyle={"light-content"} />
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>E-Market</Text>
         </View>
+
         <View style={styles.searchContainer}>
           <Ionicons name="ios-search" size={20} color="#656D78" />
           <TextInput
@@ -149,6 +153,7 @@ export default function HomeScreen({ route }) {
         <View style={styles.filterPart}>
           <Text style={styles.filtersText}>Filters: </Text>
           <TouchableOpacity
+            activeOpacity={0.9}
             onPress={() => navigation.navigate("Filter")}
             style={styles.selectFilter}
           >
@@ -157,74 +162,56 @@ export default function HomeScreen({ route }) {
         </View>
         <FlatList
           data={displayedProducts}
-          onEndReached={handleLoadMore}
+          onEndReached={!isLoading && handleLoadMore}
           onEndReachedThreshold={0.5}
+          style={styles.flatlist}
           numColumns={2}
-          contentContainerStyle={{
-            alignItems: "center",
-            width: "90%",
-            marginTop: 22,
-            marginLeft: 6,
-          }}
+          contentContainerStyle={styles.flatlistContainer}
           renderItem={({ item: product }) => {
             const isFavorite = favorites.some(
               (favorite) => favorite.id === product.id
             );
+
             return (
-              <View style={styles.productAllPart}>
+              <TouchableOpacity
+                key={product.name + "test"}
+                style={styles.productAllPart}
+                activeOpacity={0.9}
+                onPress={() =>
+                  navigation.navigate("DetailsScreen", { product: product })
+                }
+              >
+                <Image style={styles.image} source={{ uri: product.image }} />
+                <Text style={styles.priceText}>{product.price} tl</Text>
+                <Text numberOfLines={1} style={styles.productText}>
+                  {product.name}
+                </Text>
+
                 <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate("DetailsScreen", { product: product })
-                  }
-                  style={styles.productPart}
+                  onPress={() => addToCart(product)}
+                  activeOpacity={0.9}
+                  style={styles.addToCart}
                 >
-                  <TouchableOpacity
-                    style={styles.starButton}
-                    onPress={() => toggleFavorite(product)}
-                  >
-                    <Ionicons
-                      name="ios-star-sharp"
-                      size={24}
-                      color={isFavorite ? "#FFB800" : "#D9D9D9"}
-                    />
-                  </TouchableOpacity>
-                  <Image style={styles.image} source={{ uri: product.image }} />
-                  <Text style={styles.priceText}>{product.price} tl</Text>
-                  <Text style={styles.productText}>{product.name}</Text>
-                  <TouchableOpacity
-                    onPress={() => addToCart(product)}
-                    style={styles.addToCart}
-                  >
-                    <Text style={styles.addToCartText}>Add to Cart</Text>
-                  </TouchableOpacity>
+                  <Text style={styles.addToCartText}>Add to Cart</Text>
                 </TouchableOpacity>
-              </View>
+
+                <TouchableOpacity
+                  style={styles.starButton}
+                  activeOpacity={0.9}
+                  onPress={() => toggleFavorite(product)}
+                >
+                  <Ionicons
+                    name="ios-star-sharp"
+                    size={24}
+                    color={isFavorite ? "#FFB800" : "#D9D9D9"}
+                  />
+                </TouchableOpacity>
+              </TouchableOpacity>
             );
           }}
         />
       </View>
-      <View style={styles.navbar}>
-        <TouchableOpacity>
-          <Ionicons name="ios-home-outline" size={36} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-          <Ionicons name="ios-basket-outline" size={36} color="black" />
-          {cart.length > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{totalQuantity}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("FavoritesScreen")}
-        >
-          <Ionicons name="ios-star-outline" size={36} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="person-outline" size={36} color="black" />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -236,19 +223,15 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: "#2A59FE",
-    padding: 12,
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    height: 56 + Constants.statusBarHeight,
+    paddingTop: Constants.statusBarHeight,
   },
   headerText: {
     color: "#fff",
-    fontWeight: 800,
+    fontWeight: "800",
     fontSize: 24,
-  },
-  navbar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderTopWidth: 0.25,
-    padding: 10,
-    marginHorizontal: 8,
   },
   searchContainer: {
     flexDirection: "row",
@@ -288,15 +271,25 @@ const styles = StyleSheet.create({
     paddingRight: 24,
     backgroundColor: "#D9D9D9",
   },
+
+  //flatlist
+  flatlist: {
+    width: "100%",
+    marginTop: 8,
+  },
+  flatlistContainer: {
+    paddingTop: 8,
+    paddingHorizontal: 8,
+  },
   productAllPart: {
-    marginBottom: 10,
-    width: "47%",
-    marginLeft: 16,
-    backgroundColor: "#fff",
-    height: Dimensions.get("window").height / 2.2,
+    backgroundColor: "white",
+    marginBottom: 16,
+    marginHorizontal: 8,
+    height: 290,
+    maxWidth: (width - 48) / 2,
+    alignSelf: "baseline",
     borderRadius: 5,
     padding: 10,
-    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -306,9 +299,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: (width - 88) / 2,
+    flex: 1,
     maxHeight: 150,
+    borderRadius: 5,
     maxWidth: "100%",
     marginBottom: 16,
     resizeMode: "cover",
@@ -340,28 +334,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 400,
   },
-  badge: {
-    position: "absolute",
-    right: -8,
-    top: -3,
-    backgroundColor: "red",
-    borderRadius: 16,
-    width: 22,
-    height: 22,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  badgeText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
   starButton: {
     position: "absolute",
-    right: 6,
-    top: 6,
+    right: 12,
+    top: 12,
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 999,
   },
 });

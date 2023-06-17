@@ -54,7 +54,7 @@ export default function Filter() {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={navigation.goBack}>
+          <TouchableOpacity activeOpacity={0.9} onPress={navigation.goBack}>
             <Ionicons name="ios-close-outline" size={44} color="black" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Filter</Text>
@@ -153,6 +153,7 @@ export default function Filter() {
                 checkedItems: checkedItems,
               });
             }}
+            activeOpacity={0.9}
             style={styles.filterButton}
           >
             <Text style={styles.buttonText}>Apply Filter</Text>

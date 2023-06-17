@@ -11,37 +11,35 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { CartContext } from "../context/context";
+import Constants from 'expo-constants';
 
 export default function DetailsScreen({ route }) {
-  const { cart, addToCart, removeFromCart, emptyCart } =
-    useContext(CartContext);
+  const { cart, addToCart, removeFromCart, emptyCart } = useContext(CartContext);
   const { product } = route.params;
   const navigation = useNavigation();
 
   const truncate = (input) =>
     input.length > 15 ? `${input.substring(0, 15)}...` : input;
-  const totalQuantity = cart.reduce(
-    (sum, product) => sum + (product.quantity || 1),
-    0
-  );
+  const totalQuantity = cart.reduce((sum, product) => sum + (product?.quantity || 1),0);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={navigation.goBack}>
-            <Ionicons name="arrow-back-outline" size={40} color="#fff" />
+          <TouchableOpacity style={styles.headerButton} activeOpacity={0.8} onPress={navigation.goBack}>
+            <Ionicons name="arrow-back-outline" size={26} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.headerText}>{truncate(product.name)}</Text>
+          <Text style={styles.headerText}>{truncate(product?.name)}</Text>
+          <View style={styles.headerButton}/>
         </View>
         <View style={styles.contentPart}>
           <View style={styles.mainPart}>
             <View style={styles.productPart}>
-              <Image style={styles.image} source={{ uri: product.image }} />
+              <Image style={styles.image} source={{ uri: product?.image }} />
               <Text style={styles.productText}></Text>
               <ScrollView>
                 <Text style={styles.productDescription}>
-                  {product.description}
+                  {product?.description}
                 </Text>
               </ScrollView>
             </View>
@@ -49,10 +47,11 @@ export default function DetailsScreen({ route }) {
           <View style={styles.bottom}>
             <View style={styles.pricePart}>
               <Text style={styles.totalText}>Price:</Text>
-              <Text style={styles.totalPrice}>{`${product.price} TL`}</Text>
+              <Text style={styles.totalPrice}>{`${product?.price} TL`}</Text>
             </View>
             <TouchableOpacity
               onPress={() => addToCart(product)}
+              activeOpacity={0.9}
               style={styles.completeButton}
             >
               <Text style={styles.pricePartText}>Add to Cart</Text>
@@ -60,26 +59,7 @@ export default function DetailsScreen({ route }) {
           </View>
         </View>
       </View>
-      <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
-          <Ionicons name="ios-home-outline" size={36} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-          <Ionicons name="ios-basket-outline" size={36} color="black" />
-          {cart.length > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{totalQuantity}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="ios-star-outline" size={36} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="person-outline" size={36} color="black" />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -91,17 +71,25 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: "#2A59FE",
-    paddingTop: 4,
-    paddingBottom: 4,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 16,
+    paddingRight: 16,
+    height: 56 + Constants.statusBarHeight,
+    paddingTop: Constants.statusBarHeight,
     flexDirection: "row",
     alignItems: "center",
   },
+  headerButton: {
+    height: "100%",
+    width: 44,
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
   headerText: {
     color: "#fff",
-    fontWeight: 800,
+    fontWeight: "800",
     fontSize: 18,
+    textAlign: "center",
+    marginRight: 16,
     marginLeft: 75,
   },
   mainPart: {
@@ -134,14 +122,6 @@ const styles = StyleSheet.create({
   },
   productPart: {
     marginTop: 4,
-  },
-  navbar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderTopWidth: 0.25,
-    padding: 10,
-    backgroundColor: " #fff",
-    marginHorizontal: 8,
   },
   bottom: {
     flexDirection: "row",

@@ -1,14 +1,11 @@
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   TextInput,
   Image,
-  ScrollView,
   FlatList,
-  ActivityIndicator,
   Dimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
@@ -17,6 +14,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CartContext } from "../context/context";
+import Constants from 'expo-constants';
 
 export default function HomeScreen({ route }) {
   const [searchText, setSearchText] = useState("");
@@ -59,8 +57,7 @@ export default function HomeScreen({ route }) {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      <StatusBar />
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>E-Market</Text>
@@ -85,12 +82,14 @@ export default function HomeScreen({ route }) {
           renderItem={({ item: product }) => (
             <View style={styles.productAllPart}>
               <TouchableOpacity
+                activeOpacity={0.9}
                 onPress={() =>
                   navigation.navigate("DetailsScreen", { product: product })
                 }
               >
                 <TouchableOpacity
                   style={styles.starButton}
+                  activeOpacity={0.9}
                   onPress={() => toggleFavorite(product)}
                 >
                   <Ionicons name="ios-star-sharp" size={24} color="#FFB800" />
@@ -99,6 +98,7 @@ export default function HomeScreen({ route }) {
                 <Text style={styles.priceText}>{product.name}</Text>
                 <Text style={styles.productText}>{product.price} tl</Text>
                 <TouchableOpacity
+                  activeOpacity={0.9}
                   onPress={() => addToCart(product)}
                   style={styles.addToCart}
                 >
@@ -109,26 +109,7 @@ export default function HomeScreen({ route }) {
           )}
         />
       </View>
-      <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
-          <Ionicons name="ios-home-outline" size={36} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-          <Ionicons name="ios-basket-outline" size={36} color="black" />
-          {cart.length > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{totalQuantity}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="ios-star-outline" size={36} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="person-outline" size={36} color="black" />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -140,19 +121,15 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: "#2A59FE",
-    padding: 12,
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    height: 56 + Constants.statusBarHeight,
+    paddingTop: Constants.statusBarHeight
   },
   headerText: {
     color: "#fff",
     fontWeight: 800,
     fontSize: 24,
-  },
-  navbar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderTopWidth: 0.25,
-    padding: 10,
-    marginHorizontal: 8,
   },
   searchContainer: {
     flexDirection: "row",

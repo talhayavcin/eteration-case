@@ -11,6 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from 'expo-constants';
 
 export default function CartScreen() {
   const { cart, removeFromCart, updateQuantityInCart } =
@@ -63,8 +64,7 @@ export default function CartScreen() {
   }, [cart, quantities]);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      <StatusBar />
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>E-Market</Text>
@@ -80,6 +80,7 @@ export default function CartScreen() {
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <TouchableOpacity
                     style={styles.plusButton}
+                    activeOpacity={0.9}
                     onPress={() => updateQuantity(index, -1)}
                   >
                     <Text>-</Text>
@@ -87,6 +88,7 @@ export default function CartScreen() {
                   <Text style={styles.productNumber}>{quantities[index]}</Text>
                   <TouchableOpacity
                     style={styles.minusButton}
+                    activeOpacity={0.9}
                     onPress={() => updateQuantity(index, 1)}
                   >
                     <Text>+</Text>
@@ -100,29 +102,13 @@ export default function CartScreen() {
               <Text style={styles.totalText}>Total:</Text>
               <Text style={styles.totalPrice}>{`${totalPrice} TL`}</Text>
             </View>
-            <TouchableOpacity style={styles.completeButton}>
+            <TouchableOpacity activeOpacity={0.9} style={styles.completeButton}>
               <Text style={styles.pricePartText}>Complete</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-      <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
-          <Ionicons name="ios-home-outline" size={36} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="ios-basket-outline" size={36} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("FavoritesScreen")}
-        >
-          <Ionicons name="ios-star-outline" size={36} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="person-outline" size={36} color="black" />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -134,18 +120,15 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: "#2A59FE",
-    padding: 12,
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    height: 56 + Constants.statusBarHeight,
+    paddingTop: Constants.statusBarHeight
   },
   headerText: {
     color: "#fff",
     fontWeight: 800,
     fontSize: 24,
-  },
-  navbar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderTopWidth: 0.25,
-    padding: 10,
   },
   productName: {
     fontSize: 16,
