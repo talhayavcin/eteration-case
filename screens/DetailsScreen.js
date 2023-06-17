@@ -10,27 +10,31 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { CartContext } from "../context/context";
-import Constants from 'expo-constants';
+import { CartContext } from "../context/CartContext";
+import Constants from "expo-constants";
 
 export default function DetailsScreen({ route }) {
-  const { cart, addToCart, removeFromCart, emptyCart } = useContext(CartContext);
+  const { cart, addToCart, removeFromCart, emptyCart } =
+    useContext(CartContext);
   const { product } = route.params;
   const navigation = useNavigation();
 
   const truncate = (input) =>
     input.length > 15 ? `${input.substring(0, 15)}...` : input;
-  const totalQuantity = cart.reduce((sum, product) => sum + (product?.quantity || 1),0);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
-          <TouchableOpacity style={styles.headerButton} activeOpacity={0.8} onPress={navigation.goBack}>
+          <TouchableOpacity
+            style={styles.headerButton}
+            activeOpacity={0.8}
+            onPress={navigation.goBack}
+          >
             <Ionicons name="arrow-back-outline" size={26} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerText}>{truncate(product?.name)}</Text>
-          <View style={styles.headerButton}/>
+          <View style={styles.headerButton} />
         </View>
         <View style={styles.contentPart}>
           <View style={styles.mainPart}>
@@ -81,8 +85,8 @@ const styles = StyleSheet.create({
   headerButton: {
     height: "100%",
     width: 44,
-    justifyContent: 'center',
-    alignContent: 'center',
+    justifyContent: "center",
+    alignContent: "center",
   },
   headerText: {
     color: "#fff",

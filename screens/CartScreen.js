@@ -1,67 +1,24 @@
 import React, { useContext, useState, useEffect } from "react";
-import { CartContext } from "../context/context";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Constants from 'expo-constants';
+import { CartContext } from "../context/CartContext";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import Constants from "expo-constants";
 
 export default function CartScreen() {
   const { cart, removeFromCart, updateQuantityInCart } =
     useContext(CartContext);
-  const [quantities, setQuantities] = useState(Array(cart.length).fill(1));
-  const navigation = useNavigation();
-  const [totalPrice, setTotalPrice] = useState(0);
 
   const updateQuantity = (index, increment) => {
-    let newQuantities = [...quantities];
-    newQuantities[index] = Math.max(0, newQuantities[index] + increment);
-
-    if (newQuantities[index] === 0) {
+    if (cart[index].quantity + increment <= 0) {
       removeFromCart(cart[index].id);
     } else {
       updateQuantityInCart(cart[index].id, increment);
-      setQuantities(newQuantities);
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const storedQuantities = await AsyncStorage.getItem("quantities");
-        if (storedQuantities !== null) {
-          setQuantities(JSON.parse(storedQuantities));
-        } else {
-          setQuantities(Array(cart.length).fill(1));
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        await AsyncStorage.setItem("quantities", JSON.stringify(quantities));
-      } catch (error) {
-        console.error(error);
-      }
-    })();
-
-    let total = 0;
-    for (let i = 0; i < cart.length; i++) {
-      total += cart[i].price * quantities[i];
-    }
-    setTotalPrice(total);
-  }, [cart, quantities]);
+  const totalPrice = cart.reduce(
+    (sum, product) => sum + product.price * product.quantity,
+    0
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -85,7 +42,7 @@ export default function CartScreen() {
                   >
                     <Text>-</Text>
                   </TouchableOpacity>
-                  <Text style={styles.productNumber}>{quantities[index]}</Text>
+                  <Text style={styles.productNumber}>{product.quantity}</Text>
                   <TouchableOpacity
                     style={styles.minusButton}
                     activeOpacity={0.9}
@@ -123,7 +80,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 16,
     height: 56 + Constants.statusBarHeight,
-    paddingTop: Constants.statusBarHeight
+    paddingTop: Constants.statusBarHeight,
   },
   headerText: {
     color: "#fff",

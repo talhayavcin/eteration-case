@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { RadioButton, Checkbox } from "react-native-paper";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 
 export default function Filter() {

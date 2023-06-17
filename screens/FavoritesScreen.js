@@ -8,53 +8,19 @@ import {
   FlatList,
   Dimensions,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CartContext } from "../context/context";
-import Constants from 'expo-constants';
+import { CartContext } from "../context/CartContext";
+import { FavoriteContext } from "../context/FavoriteContext";
+import Constants from "expo-constants";
 
 export default function HomeScreen({ route }) {
+  const { favorites, removeFavorite } = useContext(FavoriteContext);
   const [searchText, setSearchText] = useState("");
   const { cart, addToCart, removeFromCart, emptyCart } =
     useContext(CartContext);
-  const [favorites, setFavorites] = useState([]);
   const navigation = useNavigation();
-  const totalQuantity = cart.reduce(
-    (sum, product) => sum + (product.quantity || 1),
-    0
-  );
-
-  useEffect(() => {
-    loadFavorites();
-  }, []);
-
-  const loadFavorites = async () => {
-    const storedFavorites = await AsyncStorage.getItem("favorites");
-    if (storedFavorites) {
-      setFavorites(JSON.parse(storedFavorites));
-    }
-  };
-
-  const toggleFavorite = async (product) => {
-    let updatedFavorites = [...favorites];
-    const index = updatedFavorites.findIndex((item) => item.id === product.id);
-    if (index > -1) {
-      // Ürün zaten favorilerde ise çıkarılıyor
-      updatedFavorites.splice(index, 1);
-    } else {
-      // Ürün favorilere ekleniyor
-      updatedFavorites.push(product);
-    }
-    await AsyncStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-    setFavorites(updatedFavorites);
-  };
-
-  const displayedFavorites = favorites.filter((product) =>
-    product.name.toLowerCase().includes(searchText.toLowerCase())
-  );
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -73,7 +39,7 @@ export default function HomeScreen({ route }) {
           />
         </View>
         <FlatList
-          data={displayedFavorites}
+          data={favorites}
           contentContainerStyle={{
             width: "90%",
             marginTop: 6,
@@ -90,7 +56,7 @@ export default function HomeScreen({ route }) {
                 <TouchableOpacity
                   style={styles.starButton}
                   activeOpacity={0.9}
-                  onPress={() => toggleFavorite(product)}
+                  onPress={() => removeFavorite(product)}
                 >
                   <Ionicons name="ios-star-sharp" size={24} color="#FFB800" />
                 </TouchableOpacity>
@@ -124,7 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 16,
     height: 56 + Constants.statusBarHeight,
-    paddingTop: Constants.statusBarHeight
+    paddingTop: Constants.statusBarHeight,
   },
   headerText: {
     color: "#fff",

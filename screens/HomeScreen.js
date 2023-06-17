@@ -15,7 +15,8 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
-import { CartContext } from "../context/context";
+import { CartContext } from "../context/CartContext";
+import { FavoriteContext } from "../context/FavoriteContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 
@@ -30,11 +31,8 @@ export default function HomeScreen({ route }) {
   const { cart, addToCart, removeFromCart, emptyCart } =
     useContext(CartContext);
   const [page, setPage] = useState(1);
-  const [favorites, setFavorites] = useState([]);
-  const totalQuantity = cart.reduce(
-    (sum, product) => sum + (product.quantity || 1),
-    0
-  );
+  const { favorites, addFavorite, removeFavorite } =
+    useContext(FavoriteContext);
 
   const navigation = useNavigation();
 
@@ -93,40 +91,22 @@ export default function HomeScreen({ route }) {
       setPage(page + 1);
     }
   };
+  const toggleFavorite = (product) => {
+    const isFavorite = favorites.some(
+      (favProduct) => favProduct.id === product.id
+    );
 
-  useEffect(() => {
-    AsyncStorage.getItem("favorites").then((storedFavorites) => {
-      if (storedFavorites) setFavorites(JSON.parse(storedFavorites));
-    });
-  }, []);
-
-  useEffect(() => {
-    AsyncStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
-
-  const loadFavorites = async () => {
-    const storedFavorites = await AsyncStorage.getItem("favorites");
-    if (storedFavorites) {
-      setFavorites(JSON.parse(storedFavorites));
+    if (isFavorite) {
+      // If the product is already in the favorites, remove it.
+      removeFavorite(product);
+    } else {
+      // If the product is not in the favorites, add it.
+      addFavorite(product);
     }
   };
 
-  const toggleFavorite = (product) => {
-    setFavorites((currentFavorites) => {
-      const isFavorite = currentFavorites.some(
-        (favProduct) => favProduct.id === product.id
-      );
-      if (isFavorite) {
-        // Ürün zaten favorilerdeyse, çıkar.
-        return currentFavorites.filter(
-          (favProduct) => favProduct.id !== product.id
-        );
-      } else {
-        // Ürün favorilerde değilse, ekle.
-        return [...currentFavorites, product];
-      }
-    });
-  };
+  const isFavorite = (product) =>
+    favorites.some((favorite) => favorite.id === product.id);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -160,56 +140,67 @@ export default function HomeScreen({ route }) {
             <Text>Select Filter</Text>
           </TouchableOpacity>
         </View>
-        <FlatList
-          data={displayedProducts}
-          onEndReached={!isLoading && handleLoadMore}
-          onEndReachedThreshold={0.5}
-          style={styles.flatlist}
-          numColumns={2}
-          contentContainerStyle={styles.flatlistContainer}
-          renderItem={({ item: product }) => {
-            const isFavorite = favorites.some(
-              (favorite) => favorite.id === product.id
-            );
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <FlatList
+              data={displayedProducts}
+              onEndReached={!isLoading && handleLoadMore}
+              onEndReachedThreshold={0.5}
+              style={styles.flatlist}
+              numColumns={2}
+              contentContainerStyle={styles.flatlistContainer}
+              renderItem={({ item: product }) => {
+                const isFavorite = favorites.some(
+                  (favorite) => favorite.id === product.id
+                );
 
-            return (
-              <TouchableOpacity
-                key={product.name + "test"}
-                style={styles.productAllPart}
-                activeOpacity={0.9}
-                onPress={() =>
-                  navigation.navigate("DetailsScreen", { product: product })
-                }
-              >
-                <Image style={styles.image} source={{ uri: product.image }} />
-                <Text style={styles.priceText}>{product.price} tl</Text>
-                <Text numberOfLines={1} style={styles.productText}>
-                  {product.name}
-                </Text>
+                return (
+                  <TouchableOpacity
+                    key={product.name + "test"}
+                    style={styles.productAllPart}
+                    activeOpacity={0.9}
+                    onPress={() =>
+                      navigation.navigate("DetailsScreen", { product: product })
+                    }
+                  >
+                    <Image
+                      style={styles.image}
+                      source={{ uri: product.image }}
+                    />
+                    <Text style={styles.priceText}>{product.price} tl</Text>
+                    <Text numberOfLines={1} style={styles.productText}>
+                      {product.name}
+                    </Text>
 
-                <TouchableOpacity
-                  onPress={() => addToCart(product)}
-                  activeOpacity={0.9}
-                  style={styles.addToCart}
-                >
-                  <Text style={styles.addToCartText}>Add to Cart</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => addToCart(product)}
+                      activeOpacity={0.9}
+                      style={styles.addToCart}
+                    >
+                      <Text style={styles.addToCartText}>Add to Cart</Text>
+                    </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.starButton}
-                  activeOpacity={0.9}
-                  onPress={() => toggleFavorite(product)}
-                >
-                  <Ionicons
-                    name="ios-star-sharp"
-                    size={24}
-                    color={isFavorite ? "#FFB800" : "#D9D9D9"}
-                  />
-                </TouchableOpacity>
-              </TouchableOpacity>
-            );
-          }}
-        />
+                    <TouchableOpacity
+                      style={styles.starButton}
+                      activeOpacity={0.9}
+                      onPress={() => toggleFavorite(product)}
+                    >
+                      <Ionicons
+                        name="ios-star-sharp"
+                        size={24}
+                        color={isFavorite ? "#FFB800" : "#D9D9D9"}
+                      />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          )}
+        </View>
       </View>
     </View>
   );
