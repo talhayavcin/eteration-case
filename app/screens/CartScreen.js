@@ -20,10 +20,14 @@ export default function CartScreen() {
   const [totalPrice, setTotalPrice] = useState(0);
 
   const updateQuantity = (index, increment) => {
-    if (quantities[index] + increment < 1) {
+    let newQuantities = [...quantities];
+    newQuantities[index] = Math.max(0, newQuantities[index] + increment);
+
+    if (newQuantities[index] === 0) {
       removeFromCart(cart[index].id);
     } else {
       updateQuantityInCart(cart[index].id, increment);
+      setQuantities(newQuantities);
     }
   };
 
@@ -33,6 +37,8 @@ export default function CartScreen() {
         const storedQuantities = await AsyncStorage.getItem("quantities");
         if (storedQuantities !== null) {
           setQuantities(JSON.parse(storedQuantities));
+        } else {
+          setQuantities(Array(cart.length).fill(1));
         }
       } catch (error) {
         console.error(error);
@@ -43,28 +49,7 @@ export default function CartScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const value = await AsyncStorage.getItem("quantities");
-        if (value !== null) {
-          const parsedQuantities = JSON.parse(value);
-          if (parsedQuantities.length !== cart.length) {
-            const diff = cart.length - parsedQuantities.length;
-            for (let i = 0; i < diff; i++) {
-              parsedQuantities.push(1);
-            }
-            await AsyncStorage.setItem(
-              "quantities",
-              JSON.stringify(parsedQuantities)
-            );
-          }
-          setQuantities(parsedQuantities);
-        } else {
-          const newQuantities = Array(cart.length).fill(1);
-          await AsyncStorage.setItem(
-            "quantities",
-            JSON.stringify(newQuantities)
-          );
-          setQuantities(newQuantities);
-        }
+        await AsyncStorage.setItem("quantities", JSON.stringify(quantities));
       } catch (error) {
         console.error(error);
       }
@@ -87,7 +72,7 @@ export default function CartScreen() {
         <View style={styles.contentPart}>
           <View style={styles.mainPart}>
             {cart.map((product, index) => (
-              <View key={index} style={styles.productPart}>
+              <View key={product.id} style={styles.productPart}>
                 <View>
                   <Text style={styles.productName}>{product.name}</Text>
                   <Text style={styles.productPrice}>{product.price}</Text>
@@ -123,16 +108,16 @@ export default function CartScreen() {
       </View>
       <View style={styles.navbar}>
         <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
-          <Ionicons name="ios-home-outline" size={40} color="black" />
+          <Ionicons name="ios-home-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="ios-basket-outline" size={40} color="black" />
+          <Ionicons name="ios-basket-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="ios-star-outline" size={40} color="black" />
+          <Ionicons name="ios-star-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="person-outline" size={40} color="black" />
+          <Ionicons name="person-outline" size={36} color="black" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -151,7 +136,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: "#fff",
-    fontWeight: 700,
+    fontWeight: 800,
     fontSize: 24,
   },
   navbar: {

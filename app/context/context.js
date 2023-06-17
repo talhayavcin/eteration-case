@@ -4,6 +4,7 @@ export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [quantities, setQuantities] = useState([]);
 
   // Durumu AsyncStorage'den yükle
   useEffect(() => {
@@ -17,9 +18,31 @@ export const CartProvider = ({ children }) => {
     AsyncStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
+  useEffect(() => {
+    setQuantities(cart.map((item) => item.quantity));
+  }, [cart]);
+
   // Ürün ekleme işlemi
   const addToCart = (product) => {
-    setCart((currentCart) => [...currentCart, product]);
+    setCart((currentCart) => {
+      // Ürünün zaten sepette olup olmadığını kontrol ediyoruz.
+      const productIndex = currentCart.findIndex(
+        (item) => item.id === product.id
+      );
+
+      if (productIndex !== -1) {
+        // Eğer ürün zaten sepetteyse, sadece quantity'yi arttırıyoruz.
+        const updatedCart = [...currentCart];
+        updatedCart[productIndex] = {
+          ...updatedCart[productIndex],
+          quantity: updatedCart[productIndex].quantity + 1,
+        };
+        return updatedCart;
+      } else {
+        // Eğer ürün daha önce eklenmemişse, yeni bir ürün olarak ekliyoruz ve quantity'yi 1 olarak belirliyoruz.
+        return [...currentCart, { ...product, quantity: 1 }];
+      }
+    });
   };
 
   // Ürün silme işlemi
@@ -40,7 +63,7 @@ export const CartProvider = ({ children }) => {
         product.id === productID
           ? {
               ...product,
-              quantity: Math.max(0, (product.quantity || 1) + increment),
+              quantity: Math.max(0, product.quantity + increment),
             }
           : product
       )

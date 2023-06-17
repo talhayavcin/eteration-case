@@ -18,6 +18,9 @@ export default function DetailsScreen({ route }) {
   const { product } = route.params;
   const navigation = useNavigation();
 
+  const truncate = (input) =>
+    input.length > 15 ? `${input.substring(0, 15)}...` : input;
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <View style={styles.container}>
@@ -25,13 +28,13 @@ export default function DetailsScreen({ route }) {
           <TouchableOpacity onPress={navigation.goBack}>
             <Ionicons name="arrow-back-outline" size={40} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.headerText}>{product.name}</Text>
+          <Text style={styles.headerText}>{truncate(product.name)}</Text>
         </View>
         <View style={styles.contentPart}>
           <View style={styles.mainPart}>
             <View style={styles.productPart}>
               <Image style={styles.image} source={{ uri: product.image }} />
-              <Text style={styles.productText}>{product.name}</Text>
+              <Text style={styles.productText}></Text>
               <ScrollView>
                 <Text style={styles.productDescription}>
                   {product.description}
@@ -55,16 +58,16 @@ export default function DetailsScreen({ route }) {
       </View>
       <View style={styles.navbar}>
         <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
-          <Ionicons name="ios-home-outline" size={40} color="black" />
+          <Ionicons name="ios-home-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-          <Ionicons name="ios-basket-outline" size={40} color="black" />
+          <Ionicons name="ios-basket-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="ios-star-outline" size={40} color="black" />
+          <Ionicons name="ios-star-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="person-outline" size={40} color="black" />
+          <Ionicons name="person-outline" size={36} color="black" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -88,14 +91,14 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: "#fff",
-    fontWeight: 700,
-    fontSize: 24,
+    fontWeight: 800,
+    fontSize: 18,
     marginLeft: 75,
   },
   mainPart: {
     width: "90%",
     alignSelf: "center",
-    height: "75%",
+    height: "38%",
   },
   contentPart: {
     flex: 1,
@@ -129,6 +132,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.25,
     padding: 10,
     backgroundColor: " #fff",
+    marginHorizontal: 8,
   },
   bottom: {
     flexDirection: "row",

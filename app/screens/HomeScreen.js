@@ -17,6 +17,7 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { CartContext } from "../context/context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen({ route }) {
   const { selectedOption, checkedItems } = route.params || {};
@@ -27,6 +28,11 @@ export default function HomeScreen({ route }) {
   const { cart, addToCart, removeFromCart, emptyCart } =
     useContext(CartContext);
   const [page, setPage] = useState(1);
+  const [favorites, setFavorites] = useState([]);
+  const totalQuantity = cart.reduce(
+    (sum, product) => sum + (product.quantity || 1),
+    0
+  );
 
   const navigation = useNavigation();
 
@@ -85,6 +91,33 @@ export default function HomeScreen({ route }) {
     setPage(page + 1);
   };
 
+  useEffect(() => {
+    AsyncStorage.getItem("favorites").then((storedFavorites) => {
+      if (storedFavorites) setFavorites(JSON.parse(storedFavorites));
+    });
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
+
+  const toggleFavorite = (product) => {
+    setFavorites((currentFavorites) => {
+      const isFavorite = currentFavorites.some(
+        (favProduct) => favProduct.id === product.id
+      );
+      if (isFavorite) {
+        // Ürün zaten favorilerdeyse, çıkar.
+        return currentFavorites.filter(
+          (favProduct) => favProduct.id !== product.id
+        );
+      } else {
+        // Ürün favorilerde değilse, ekle.
+        return [...currentFavorites, product];
+      }
+    });
+  };
+
   if (isLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
@@ -134,6 +167,12 @@ export default function HomeScreen({ route }) {
                 }
                 style={styles.productPart}
               >
+                <TouchableOpacity
+                  style={styles.starButton}
+                  onPress={() => toggleFavorite(product)}
+                >
+                  <Ionicons name="ios-star-sharp" size={24} color="#D9D9D9" />
+                </TouchableOpacity>
                 <Image style={styles.image} source={{ uri: product.image }} />
                 <Text style={styles.priceText}>{product.price} tl</Text>
                 <Text style={styles.productText}>{product.name}</Text>
@@ -150,16 +189,21 @@ export default function HomeScreen({ route }) {
       </View>
       <View style={styles.navbar}>
         <TouchableOpacity>
-          <Ionicons name="ios-home-outline" size={40} color="black" />
+          <Ionicons name="ios-home-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-          <Ionicons name="ios-basket-outline" size={40} color="black" />
+          <Ionicons name="ios-basket-outline" size={36} color="black" />
+          {cart.length > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{totalQuantity}</Text>
+            </View>
+          )}
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="ios-star-outline" size={40} color="black" />
+          <Ionicons name="ios-star-outline" size={36} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="person-outline" size={40} color="black" />
+          <Ionicons name="person-outline" size={36} color="black" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -178,7 +222,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: "#fff",
-    fontWeight: 700,
+    fontWeight: 800,
     fontSize: 24,
   },
   navbar: {
@@ -186,6 +230,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderTopWidth: 0.25,
     padding: 10,
+    marginHorizontal: 8,
   },
   searchContainer: {
     flexDirection: "row",
@@ -242,7 +287,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
-
   image: {
     width: "100%",
     height: "100%",
@@ -277,5 +321,29 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: 400,
+  },
+  badge: {
+    position: "absolute",
+    right: -8,
+    top: -3,
+    backgroundColor: "red",
+    borderRadius: 16,
+    width: 22,
+    height: 22,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  badgeText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  starButton: {
+    position: "absolute",
+    right: 6,
+    top: 6,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
   },
 });
