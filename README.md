@@ -8,6 +8,7 @@
 
 ```bash
 npm install
+npm install -g expo-cli
 ```
 
 **Run Project Locally:**
